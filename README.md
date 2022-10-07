@@ -47,7 +47,7 @@ $ sudo apt-get install python3-catkin-tools
 
     $ mkdir -p elfin_ws/src
     $ cd ~/elfin_ws/src
-    $ git clone https://github.com/tau-alma/edu-elfin_simulation.git
+    $ git clone https://github.com/tau-alma/Elfin_Simulation.git
     $ cd ~/elfin_ws/
     $ catkin build
 
