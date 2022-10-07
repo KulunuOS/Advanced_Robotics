@@ -3,7 +3,7 @@
 
 ### Installation and Pre-requisites
 We'll use [[4]](https://github.com/modulabs/arm-control) for implementing and demonstrating the course assignments. 
-Follow the prerequisite and install the dependencies listed in [original work](https://github.com/KulunuOS/Elfin_Simulation#installation-and-pre-requisites)
+Follow the [prerequisites](https://github.com/modulabs/arm-control#prerequisite) and install the dependencies listed in Original repository.
 
 ### Download, create a workspace and build 
 
