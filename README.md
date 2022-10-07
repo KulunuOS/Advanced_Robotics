@@ -1,10 +1,9 @@
 # AUT-720 Advanced Robotics
 
-We'll use [[4]](https://github.com/modulabs/arm-control) for implementing and demonstrating the course assignments.  
 
 ### Installation and Pre-requisites
 We'll use [[4]](https://github.com/modulabs/arm-control) for implementing and demonstrating the course assignments. 
-Follow the installation guideslines and install the dependencies as instructed in mthe original work
+Follow the prerequisite and install the dependencies listed in [original work](https://github.com/KulunuOS/Elfin_Simulation#installation-and-pre-requisites)
 
 ### Download, create a workspace and build 
 
