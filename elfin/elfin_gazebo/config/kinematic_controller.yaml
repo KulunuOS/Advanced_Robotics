@@ -29,4 +29,4 @@ elfin:
       root_link: world
       tip_link: elfin_link6
 
-      space_mode : task #joint
+      space_mode : joint #task

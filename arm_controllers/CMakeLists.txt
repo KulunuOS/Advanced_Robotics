@@ -42,6 +42,7 @@ add_library(${PROJECT_NAME}
   src/computed_torque_clik_controller.cpp
   src/adaptive_variable_impedance_controller.cpp
   src/passivity_controller.cpp
+  src/kinematic_controller.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
