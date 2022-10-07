@@ -1,4 +1,5 @@
 # AUT-720 Advanced Robotics
+
 We'll use [[4]](https://github.com/modulabs/arm-control) for implementing and demonstrating the course assignments.  
 
 ## Prerequisites
