@@ -19,7 +19,6 @@ Follow the prerequisite and install the dependencies listed in [original work](h
 
 ```
 $ roslaunch elfin_gazebo elfin3_kinematic_controller.launch controller:=kinematic_controller
-
 ``` 
 
 ## References
