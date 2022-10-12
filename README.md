@@ -21,6 +21,12 @@ Follow the [prerequisites](https://github.com/modulabs/arm-control#prerequisite)
 $ roslaunch elfin_gazebo elfin3_kinematic_controller.launch controller:=kinematic_controller
 ``` 
 
+- [x] Inverse Dynamics controller
+
+```
+roslaunch elfin_gazebo elfin3_empty_world.launch controller:=dynamic_controller
+``` 
+
 ## References
 1. [ros_Control](http://wiki.ros.org/ros_control)
 2. [Write a new ros-controller](https://github.com/ros-controls/ros_control/wiki/controller_interface)
