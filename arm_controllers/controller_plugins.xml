@@ -41,5 +41,11 @@
       Kinematic Controller
     </description>
   </class>
+
+<class name="arm_controllers/DynamicController" type="arm_controllers::DynamicController" base_class_type="controller_interface::ControllerBase">
+    <description>
+      Dynamic Controller
+    </description>
+  </class>
 </library>
 

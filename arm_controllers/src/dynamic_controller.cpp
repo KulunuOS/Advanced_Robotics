@@ -32,16 +32,16 @@
 #define A 0.1
 #define b 2.5
 #define f 1
-#define t_set 1
+#define t_set 0.5
 
 
 
 namespace arm_controllers
 {
-class KinematicController : public controller_interface::Controller<hardware_interface::VelocityJointInterface>
+class DynamicController : public controller_interface::Controller<hardware_interface::EffortJointInterface>
 {
   public:
-    bool init(hardware_interface::VelocityJointInterface *hw, ros::NodeHandle &n)
+    bool init(hardware_interface::EffortJointInterface *hw, ros::NodeHandle &n)
     {
         // ********* 1. Get joint name / gain from the parameter server *********
         // 1.1 Joint Name
@@ -76,18 +76,18 @@ class KinematicController : public controller_interface::Controller<hardware_int
         for (size_t i = 0; i < n_joints_; i++)
         {
             std::string si = boost::lexical_cast<std::string>(i + 1);
-            if (n.getParam("/elfin/kinematic_controller/gains/elfin_joint" + si + "/pid/p", Kp[i]))
+            if (n.getParam("/elfin/dynamic_controller/gains/elfin_joint" + si + "/pid/p", Kp[i]))
             {
                 Kp_(i) = Kp[i];
             }
             else
             {
-                std::cout << "/elfin/kinematic_controller/gains/elfin_joint" + si + "/pid/p" << std::endl;
+                std::cout << "/elfin/dynamic_controller/gains/elfin_joint" + si + "/pid/p" << std::endl;
                 ROS_ERROR("Cannot find pid/p gain");
                 return false;
             }
 
-            if (n.getParam("/elfin/kinematic_controller/gains/elfin_joint" + si + "/pid/i", Ki[i]))
+            if (n.getParam("/elfin/dynamic_controller/gains/elfin_joint" + si + "/pid/i", Ki[i]))
             {
                 Ki_(i) = Ki[i];
             }
@@ -97,7 +97,7 @@ class KinematicController : public controller_interface::Controller<hardware_int
                 return false;
             }
 
-            if (n.getParam("/elfin/kinematic_controller/gains/elfin_joint" + si + "/pid/d", Kd[i]))
+            if (n.getParam("/elfin/dynamic_controller/gains/elfin_joint" + si + "/pid/d", Kd[i]))
             {
                 Kd_(i) = Kd[i];
             }
@@ -107,6 +107,13 @@ class KinematicController : public controller_interface::Controller<hardware_int
                 return false;
             }
         }
+
+        if (!n.getParam("/elfin/dynamic_controller/clik_gain/K_regulation", K_regulation_))
+            {
+                ROS_ERROR("Cannot find clik regulation gain");
+                return false;
+            }
+
 
         // 2. ********* urdf *********
         urdf::Model urdf;
@@ -253,7 +260,7 @@ class KinematicController : public controller_interface::Controller<hardware_int
         //pub_SaveData_ = n.advertise<std_msgs::Float64MultiArray>("SaveData", 1000); // 뒤에 숫자는?
 
         // 6.2 subsriber
-        sub_x_cmd_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &KinematicController::commandCB, this);
+        sub_x_cmd_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &DynamicController::commandCB, this);
         return true;
     }
 
@@ -302,31 +309,6 @@ class KinematicController : public controller_interface::Controller<hardware_int
                 qd_dot_(i) = M_PI / 2 * 45 * KDL::deg2rad * cos(M_PI / 2 * t);          
                 qd_(i) = 45 * KDL::deg2rad * sin(M_PI / 2* t);
             }
-            // *** 2.1 Error Definition in Joint Space ***
-            e_.data = qd_.data - q_.data;
-            e_dot_.data = qd_dot_.data - qdot_.data;
-            e_int_.data = qd_.data - q_.data; // (To do: e_int 업데이트 필요요)
-
-            // *** 2.2 Compute model(M,C,G) ***
-            // id_solver_->JntToMass(q_, M_);
-            // id_solver_->JntToCoriolis(q_, qdot_, C_);
-            // id_solver_->JntToGravity(q_, G_); 
-
-            // *** 2.3 Apply Torque Command to Actuator ***
-            // change the control command equation here <<
-
-            //aux_d_.data = M_.data * (qd_ddot_.data + Kp_.data.cwiseProduct(e_.data) + Kd_.data.cwiseProduct(e_dot_.data));
-            //comp_d_.data = C_.data + G_.data;
-            //tau_d_.data = aux_d_.data + comp_d_.data;
-            q_cmd_.data = qd_dot_.data + Kp_.data.cwiseProduct(e_.data);
-
-
-            // set the command
-            for (int i = 0; i < n_joints_; i++)
-            {
-                 joints_[i].setCommand(q_cmd_(i));
-                 // joints_[i].setCommand(0.0);
-            }
 
 
         }
@@ -368,41 +350,54 @@ class KinematicController : public controller_interface::Controller<hardware_int
             ex_(1) = x_.p(1);
             ex_(2) = x_.p(2);
             x_.M.GetRPY(ex_(3),ex_(4), ex_(5));
-
-            // ex_(3) = x_.M(0);
-            // ex_(4) = x_.M(1);
-            // ex_(5) = x_.M(2);
         
             exd_(0) = xd_.p(0);
             exd_(1) = xd_.p(1);
             exd_(2) = xd_.p(2);
             xd_.M.GetRPY(exd_(3), exd_(4), exd_(5));
-          //  exd_(3) = xd_.M(0);
-          //  exd_(4) = xd_.M(1);
-          //  exd_(5) = xd_.M(2);
             
 
             jnt_to_jac_solver_->JntToJac(q_, J_);
-            Vcmd = xd_dot_ + Kp_.data.cwiseProduct(Xerr_) ;
+            //Vcmd = xd_dot_ + Kp_.data.cwiseProduct(Xerr_) ;
             J_inv_ = J_.data.inverse();
+            J_transpose_ = J_.data.transpose();
             // pseudo_inverse(J_.data,J_inv_.data,false);
-            q_dot_cmd_ = J_inv_*Vcmd;
-
-
-            //q_cmd_(0) = q_dot_cmd_(0);
-            //q_cmd_(1) = q_dot_cmd_(1);
-            //q_cmd_(2) = q_dot_cmd_(2);
-            //q_cmd_(3) = q_dot_cmd_(3);
-            //q_cmd_(4) = q_dot_cmd_(4);
-            //q_cmd_(5) = q_dot_cmd_(5);
-            // set the command
-            for (int i = 0; i < n_joints_; i++)
+            
+            
+            if (t < t_set)
             {
-                 joints_[i].setCommand(q_dot_cmd_(i));
-                 // joints_[i].setCommand(0.0);
-            }            
+                qd_.data = qd_old_.data;
+            }
+            else
+            {
+                // qcmd_dot/dt = qd_dot + J_inv * (Kp*Xerr) Multiply both sides by dt to get q and x
+                qd_.data = qd_old_.data + J_transpose_ * K_regulation_ * Xerr_ * dt;  
+                qd_old_.data = qd_.data;
+            }        
 
         }
+
+        // Error and torque calculation
+        e_.data = qd_.data - q_.data;
+        e_dot_.data = qd_dot_.data - qdot_.data;
+        e_int_.data = qd_.data - q_.data; // (To do: e_int 업데이트 필요요)
+
+        // *** 3.2 Compute model(M,C,G) ***
+        id_solver_->JntToMass(q_, M_);
+        id_solver_->JntToCoriolis(q_, qdot_, C_);
+        id_solver_->JntToGravity(q_, G_); // output은 머지? , id_solver는 어디에서?
+
+        // *** 3.3 Apply Torque Command to Actuator ***
+        aux_d_.data = M_.data * (qd_ddot_.data + Kp_.data.cwiseProduct(e_.data) + Kd_.data.cwiseProduct(e_dot_.data));
+        comp_d_.data = C_.data + G_.data;
+        tau_d_.data = aux_d_.data + comp_d_.data;
+
+        // SET COMMAND
+        for (int i = 0; i < n_joints_; i++)
+            {
+                joints_[i].setCommand(tau_d_(i));
+                // joints_[i].setCommand(0.0);
+            }
 
         // ********* 3. data 저장 *********
         //save_data();
@@ -507,6 +502,7 @@ class KinematicController : public controller_interface::Controller<hardware_int
   private:
     // others
     double t;
+    double K_regulation_,K_tracking ;
     std::string space_mode_;
     //Joint handles
     unsigned int n_joints_;                               // joint 숫자
@@ -579,4 +575,4 @@ class KinematicController : public controller_interface::Controller<hardware_int
 
 };
 }; // namespace arm_controllers
-PLUGINLIB_EXPORT_CLASS(arm_controllers::KinematicController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(arm_controllers::DynamicController, controller_interface::ControllerBase)
