@@ -60,5 +60,11 @@
     </description>
   </class>
 
+  <class name="arm_controllers/TaskCon" type="arm_controllers::TaskCon" base_class_type="controller_interface::ControllerBase">
+    <description>
+	    Task Controller using full Inverse dynamics.
+    </description>
+  </class>
+
 </library>
 

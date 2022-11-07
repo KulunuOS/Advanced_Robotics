@@ -46,6 +46,7 @@ add_library(${PROJECT_NAME}
   src/dynamics_controller.cpp
   src/tstVel.cpp
   src/tstSingleJoint.cpp
+  src/TaskCon.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
