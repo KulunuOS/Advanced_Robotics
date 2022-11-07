@@ -66,5 +66,11 @@
     </description>
   </class>
 
+  <class name="arm_controllers/TaskConAlt" type="arm_controllers::TaskConAlt" base_class_type="controller_interface::ControllerBase">
+    <description>
+	    Task Controller alternative uses internal gains for torque cmds, has joint limits, check code for more info.
+    </description>
+  </class>
+
 </library>
 
