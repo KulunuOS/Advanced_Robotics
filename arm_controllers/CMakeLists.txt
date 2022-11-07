@@ -48,6 +48,7 @@ add_library(${PROJECT_NAME}
   src/tstSingleJoint.cpp
   src/TaskCon.cpp
   src/TaskConAlt.cpp
+  src/JointCon.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})

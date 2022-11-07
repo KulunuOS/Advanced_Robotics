@@ -72,5 +72,11 @@
     </description>
   </class>
 
+  <class name="arm_controllers/JointCon" type="arm_controllers::JointCon" base_class_type="controller_interface::ControllerBase">
+    <description>
+	    Joint Controller takes commands from publisher and makes sure all joints reach close to those values.
+    </description>
+  </class>
+
 </library>
 
