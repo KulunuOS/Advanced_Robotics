@@ -44,6 +44,7 @@ add_library(${PROJECT_NAME}
   src/passivity_controller.cpp
   src/kinematic_controller.cpp
   src/dynamics_controller.cpp
+  src/tstVel.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
