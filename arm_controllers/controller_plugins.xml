@@ -54,5 +54,11 @@
     </description>
   </class>
 
+  <class name="arm_controllers/tstSingleJoint" type="arm_controllers::tstSingleJoint" base_class_type="controller_interface::ControllerBase">
+    <description>
+	    Test Controller Single joint movement
+    </description>
+  </class>
+
 </library>
 

@@ -45,6 +45,7 @@ add_library(${PROJECT_NAME}
   src/kinematic_controller.cpp
   src/dynamics_controller.cpp
   src/tstVel.cpp
+  src/tstSingleJoint.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
